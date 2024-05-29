@@ -1,4 +1,4 @@
-import { db } from "../BD/BDConect"
+import { db } from "../BD/BDConect.js"
 
 export class AuthController {
   async authenticate(req, res) {
@@ -10,7 +10,6 @@ export class AuthController {
     WHERE users.username = ?
     LIMIT 1
     `
-
 
     if (!user) return res.status(403).json({ error: 'Insira um usuário' })
     if (!password) return res.status(403).json({ error: 'Insira uma senha' })
