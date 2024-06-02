@@ -1,20 +1,27 @@
 import express, { Router } from 'express'
-import { WhatsController } from './controller/WhatsController.js';
-import { AuthController } from './controller/AuthController.js';
+import { WhatsController } from './controller/public/WhatsController.js';
+import { AuthController } from './controller/public/AuthController.js';
+import { OrdersController } from './controller/public/OrdersController.js';
 
 export const router = Router();
 
 const whatscontroller = new WhatsController
 const authcontroller = new AuthController
+const orderscontroller = new OrdersController
 
 
 router.use(express.json());
 
+// public routes
 router.post("/auth", authcontroller.authenticate)
+
+router.get("/get-orders", orderscontroller.getOrders)
 
 router.post("/pedido", whatscontroller.whatsMessage)
 
 router.get("/teste", whatscontroller.whatsTeste)
+
+// private routes
 
 
 router.get("/", (req, res) => {

@@ -1,5 +1,6 @@
 import md5 from "md5"
-import { db } from "../BD/BDConect.js"
+import jwt from 'jsonwebtoken'
+import { db } from "../../BD/BDConect.js"
 
 export class AuthController {
   async authenticate(req, res) {
@@ -7,8 +8,8 @@ export class AuthController {
     const isValuePassword = md5(password)
     const qUser = `
     SELECT id, email, password
-    FROM usuarios 
-    WHERE usuarios.email = ?
+    FROM users_business 
+    WHERE users_business.email = ?
     LIMIT 1
     `
 
@@ -19,7 +20,11 @@ export class AuthController {
       if (err) return res.json({ error: 'erro interno ao processar requisição', errorDetails: err })
       if (!data[0]) return res.status(403).json({ error: 'Email não cadastrado' })
       if (data[0].password != isValuePassword) return res.status(400).json({ error: 'Senha incorreta' })
-      return res.status(200).json({ id: data[0].id, email })
+      return res.status(200).json({
+        id: data[0].id,
+        email,
+        token: jwt.sign({ id: data[0].id }, process.env.SECRET_TOKEN, { expiresIn: '4h' })
+      })
     })
   }
 }
