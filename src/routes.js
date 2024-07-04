@@ -2,12 +2,14 @@ import express, { Router } from 'express'
 import { WhatsController } from './controller/public/WhatsController.js';
 import { AuthController } from './controller/public/AuthController.js';
 import { OrdersController } from './controller/public/OrdersController.js';
+import { ProspectsController } from './controller/public/ProspectsController.js';
 
 export const router = Router();
 
 const whatscontroller = new WhatsController
 const authcontroller = new AuthController
 const orderscontroller = new OrdersController
+const prospectscontroller = new ProspectsController
 
 
 router.use(express.json());
@@ -16,6 +18,8 @@ router.use(express.json());
 router.post("/auth", authcontroller.authenticate)
 
 router.get("/get-orders", orderscontroller.getOrders)
+
+router.get("/prospects", prospectscontroller.getProspects)
 
 router.post("/pedido", whatscontroller.whatsMessage)
 
