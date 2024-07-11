@@ -21,6 +21,9 @@ export class WhatsController {
   }
 
   async whatsMessage(req, res) {
+    const { pedido } = req.body
+    return res.status(200).json(pedido)
+
     const testeMsg = {
       dadosLoja: {
         nomeLoja: "Buno Pizza's",
