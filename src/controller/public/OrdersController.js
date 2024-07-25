@@ -2,11 +2,11 @@ import { db } from '../../BD/BDConect.js';
 
 const getOrdersByBusiness = (nameBussiness, callback) => {
   const q = `
-    SELECT orders_business.id, orders_business.id_business, orders_business.name, orders_business.description, orders_business.price, orders_business.photo_thumb 
-    FROM orders_business 
-    INNER JOIN users_business 
-    ON orders_business.id_business = users_business.id 
-    WHERE users_business.name_url = ?
+    SELECT a.id, a.id_business, a.name, a.description, a.price, a.photo_thumb, c.name as category
+    FROM orders_business a
+    INNER JOIN users_business b ON a.id_business = b.id 
+    INNER JOIN orders_business_category c ON a.category = c.id 
+    WHERE b.name_url = ?
   `;
   db.query(q, [nameBussiness], callback);
 };
