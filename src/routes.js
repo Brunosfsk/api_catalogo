@@ -17,7 +17,12 @@ router.use(express.json());
 // public routes
 router.post("/auth", authcontroller.authenticate)
 
-router.get("/get-orders", orderscontroller.getOrders)
+router.get("/orders", orderscontroller.getOrders);
+
+router.post("/orders", orderscontroller.createOrder);
+
+router.patch("/orders/:id", orderscontroller.updateOrder);
+
 
 router.get("/prospects", prospectscontroller.getProspects)
 

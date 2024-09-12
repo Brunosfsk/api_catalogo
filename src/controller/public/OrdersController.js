@@ -11,6 +11,28 @@ const getOrdersByBusiness = (nameBussiness, callback) => {
   db.query(q, [nameBussiness], callback);
 };
 
+const createOrder = (orderData, callback) => {
+  const { id_business, name, description, price, category, photo_thumb } = orderData;
+  const q = `
+    INSERT INTO orders_business (id_business, name, description, price, category, photo_thumb)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  const values = [id_business, name, description, price, category, photo_thumb];
+  db.query(q, values, callback);
+};
+
+
+const updateOrder = (id, updatedData, callback) => {
+  const { name, description, price, category, photo_thumb } = updatedData;
+  const q = `
+    UPDATE orders_business 
+    SET name = ?, description = ?, price = ?, category = ?, photo_thumb = ?
+    WHERE id = ?
+  `;
+  const values = [name, description, price, category, photo_thumb, id];
+  db.query(q, values, callback);
+};
+
 export class OrdersController {
   async getOrders(req, res) {
     const { nameBussiness } = req.query;
@@ -22,6 +44,35 @@ export class OrdersController {
       if (!data[0]) return res.status(404).json({ error: 'Loja não possui itens' });
 
       return res.status(200).json(data);
+    });
+  }
+
+  async createOrder(req, res) {
+    const { id_business, name, description, price, category, photo_thumb } = req.body;
+
+    if (!id_business || !name || !price || !category) {
+      return res.status(400).json({ error: 'Dados incompletos para criação do pedido' });
+    }
+
+    createOrder(req.body, (err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao criar pedido', errorDetails: err });
+
+      return res.status(201).json({ message: 'Pedido criado com sucesso', orderId: result.insertId });
+    });
+  }
+
+  async updateOrder(req, res) {
+    const { id } = req.params;
+    const { name, description, price, category, photo_thumb } = req.body;
+
+    if (!name && !description && !price && !category && !photo_thumb) {
+      return res.status(400).json({ error: 'Nenhuma informação foi enviada para atualizar' });
+    }
+
+    updateOrder(id, req.body, (err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao atualizar pedido', errorDetails: err });
+
+      return res.status(200).json({ message: 'Pedido atualizado com sucesso' });
     });
   }
 }
