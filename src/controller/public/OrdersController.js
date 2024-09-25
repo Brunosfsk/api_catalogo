@@ -1,12 +1,14 @@
 import { db } from '../../BD/BDConect.js';
 
-const getOrdersByBusiness = (nameBussiness, callback) => {
+const getOrdersByBusiness = (getOrder, callback) => {
+  const { nameBussiness, active } = getOrder;
+
   const q = `
-    SELECT a.id, a.id_business, a.name, a.description, a.price, a.photo_thumb, c.name as category
+    SELECT a.id, a.id_business, a.name, a.description, a.price, a.photo_thumb, a.active, a.category, c.name as category_name
     FROM orders_business a
     INNER JOIN users_business b ON a.id_business = b.id 
     INNER JOIN orders_business_category c ON a.category = c.id 
-    WHERE b.name_url = ?
+    WHERE b.name_url = ? ${typeof active !== 'undefined' ? 'AND a.active = ' + active : ''}
   `;
   db.query(q, [nameBussiness], callback);
 };
@@ -23,14 +25,50 @@ const createOrder = (orderData, callback) => {
 
 
 const updateOrder = (id, updatedData, callback) => {
-  const { name, description, price, category, photo_thumb } = updatedData;
+  const { name, description, price, category, photo_thumb, active } = updatedData;
+  let query = 'UPDATE orders_business SET';
+  const values = [];
+
+  if (name) {
+    query += ' name = ?,';
+    values.push(name);
+  }
+  if (description) {
+    query += ' description = ?,';
+    values.push(description);
+  }
+  if (price) {
+    query += ' price = ?,';
+    values.push(price);
+  }
+
+  if (typeof active !== 'undefined') {
+    query += ' active = ?,';
+    values.push(active);
+  }
+
+  if (category) {
+    query += ' category = ?,';
+    values.push(category);
+  }
+  if (photo_thumb) {
+    query += ' photo_thumb = ?,';
+    values.push(photo_thumb);
+  }
+
+  query = query.slice(0, -1);
+  query += ' WHERE id = ?';
+  values.push(id);
+
+  db.query(query, values, callback);
+};
+
+
+const findRolesCategory = (callback) => {
   const q = `
-    UPDATE orders_business 
-    SET name = ?, description = ?, price = ?, category = ?, photo_thumb = ?
-    WHERE id = ?
+    SELECT id, name FROM orders_business_category;
   `;
-  const values = [name, description, price, category, photo_thumb, id];
-  db.query(q, values, callback);
+  db.query(q, callback);
 };
 
 export class OrdersController {
@@ -39,7 +77,7 @@ export class OrdersController {
 
     if (!nameBussiness) return res.status(400).json({ error: 'informação base não foi enviada' });
 
-    getOrdersByBusiness(nameBussiness, (err, data) => {
+    getOrdersByBusiness(req.query, (err, data) => {
       if (err) return res.status(500).json({ error: 'Erro interno ao processar requisição', errorDetails: err });
       if (!data[0]) return res.status(404).json({ error: 'Loja não possui itens' });
 
@@ -50,29 +88,36 @@ export class OrdersController {
   async createOrder(req, res) {
     const { id_business, name, description, price, category, photo_thumb } = req.body;
 
-    if (!id_business || !name || !price || !category) {
+    if (!id_business || !name || !price || !category || !description || !photo_thumb) {
       return res.status(400).json({ error: 'Dados incompletos para criação do pedido' });
     }
 
     createOrder(req.body, (err, result) => {
       if (err) return res.status(500).json({ error: 'Erro ao criar pedido', errorDetails: err });
-
-      return res.status(201).json({ message: 'Pedido criado com sucesso', orderId: result.insertId });
+      return res.status(200).json({ message: 'Pedido criado com sucesso', orderId: result.insertId });
     });
   }
 
   async updateOrder(req, res) {
     const { id } = req.params;
-    const { name, description, price, category, photo_thumb } = req.body;
+    const updatedData = req.body;
 
-    if (!name && !description && !price && !category && !photo_thumb) {
+    if (Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Nenhuma informação foi enviada para atualizar' });
     }
 
-    updateOrder(id, req.body, (err, result) => {
+    updateOrder(id, updatedData, (err, result) => {
       if (err) return res.status(500).json({ error: 'Erro ao atualizar pedido', errorDetails: err });
 
       return res.status(200).json({ message: 'Pedido atualizado com sucesso' });
+    });
+  }
+
+  async findRolesCategory(_, res) {
+    findRolesCategory((err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao atualizar pedido', errorDetails: err });
+
+      return res.status(200).json(result);
     });
   }
 }
