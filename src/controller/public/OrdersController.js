@@ -1,25 +1,25 @@
 import { db } from '../../BD/BDConect.js';
 
 const getOrdersByBusiness = (getOrder, callback) => {
-  const { nameBussiness, active } = getOrder;
+  const { bussinessID, bussinessName, active } = getOrder;
 
   const q = `
     SELECT a.id, a.id_business, a.name, a.description, a.price, a.photo_thumb, a.active, a.category, c.name as category_name
     FROM orders_business a
     INNER JOIN users_business b ON a.id_business = b.id 
     INNER JOIN orders_business_category c ON a.category = c.id 
-    WHERE b.name_url = ? ${typeof active !== 'undefined' ? 'AND a.active = ' + active : ''}
+    WHERE ${bussinessID ? "b.id  = ?" : "b.name_url = ?"} ${typeof active !== 'undefined' ? 'AND a.active = ' + active : ''}
   `;
-  db.query(q, [nameBussiness], callback);
+  db.query(q, [bussinessID || bussinessName], callback);
 };
 
 const createOrder = (orderData, callback) => {
-  const { id_business, name, description, price, category, photo_thumb } = orderData;
+  const { bussinessID, name, description, price, category, photo_thumb } = orderData;
   const q = `
     INSERT INTO orders_business (id_business, name, description, price, category, photo_thumb)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
-  const values = [id_business, name, description, price, category, photo_thumb];
+  const values = [bussinessID, name, description, price, category, photo_thumb];
   db.query(q, values, callback);
 };
 
@@ -73,9 +73,9 @@ const findRolesCategory = (callback) => {
 
 export class OrdersController {
   async getOrders(req, res) {
-    const { nameBussiness } = req.query;
+    const { bussinessID, bussinessName } = req.query;
 
-    if (!nameBussiness) return res.status(400).json({ error: 'informação base não foi enviada' });
+    if (!bussinessID && !bussinessName) return res.status(400).json({ error: 'informação base não foi enviada' });
 
     getOrdersByBusiness(req.query, (err, data) => {
       if (err) return res.status(500).json({ error: 'Erro interno ao processar requisição', errorDetails: err });
@@ -86,9 +86,9 @@ export class OrdersController {
   }
 
   async createOrder(req, res) {
-    const { id_business, name, description, price, category, photo_thumb } = req.body;
+    const { bussinessID, name, description, price, category, photo_thumb } = req.body;
 
-    if (!id_business || !name || !price || !category || !description || !photo_thumb) {
+    if (!bussinessID || !name || !price || !category || !description || !photo_thumb) {
       return res.status(400).json({ error: 'Dados incompletos para criação do pedido' });
     }
 
