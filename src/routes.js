@@ -27,6 +27,8 @@ router.patch("/orders/:id", orderscontroller.updateOrder);
 
 router.get("/orders/roles.category", orderscontroller.findRolesCategory);
 
+router.get("/business", businesscontroller.findMany);
+
 router.get("/business/:url", businesscontroller.findUnique);
 
 

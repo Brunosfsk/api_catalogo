@@ -4,7 +4,7 @@ import { db } from '../../BD/BDConect.js';
 
 const getUserByEmail = (email, callback) => {
   const qUser = `
-    SELECT id, email, password, type
+    SELECT id, email, password, type, name_url
     FROM users_business 
     WHERE users_business.email = ?
     LIMIT 1
@@ -27,7 +27,7 @@ export class AuthController {
       if (data[0].password != isValuePassword) return res.status(400).json({ error: 'Senha incorreta' });
 
       const token = jwt.sign({ id: data[0].id }, process.env.SECRET_TOKEN, { expiresIn: '4h' });
-      return res.status(200).json({ id: data[0].id, email, type: data[0].type, token });
+      return res.status(200).json({ id: data[0].id, email, type: data[0].type, name_url: data[0].name_url, token, });
     });
   }
 }
