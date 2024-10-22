@@ -1,3 +1,3 @@
 export const APITOKEN =
-    'https://api.telegram.org/bot7894287986:AAFue5dyTtKske0VcJaWiNdQ-fMXTCBZuS4';
-export const CHAT_ID = 1632877428
+  'https://api.telegram.org/bot7585129815:AAG7-i0by5m9HyB42vfFaNv7cM7qSxOfwxA';
+export const CHAT_ID = 1273028911;
