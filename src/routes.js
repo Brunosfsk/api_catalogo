@@ -4,6 +4,7 @@ import { AuthController } from './controller/public/AuthController.js';
 import { OrdersController } from './controller/public/OrdersController.js';
 import { ProspectsController } from './controller/public/ProspectsController.js';
 import { BusinessController } from './controller/public/BusinessController.js';
+import { TelegramController } from './controller/TelegramController.js';
 
 export const router = Router();
 
@@ -12,6 +13,8 @@ const authcontroller = new AuthController
 const orderscontroller = new OrdersController
 const prospectscontroller = new ProspectsController
 const businesscontroller = new BusinessController
+const telegramController = new TelegramController
+
 
 
 router.use(express.json());
@@ -38,6 +41,8 @@ router.get("/prospects", prospectscontroller.getProspects)
 router.post("/pedido", whatscontroller.whatsMessage)
 
 router.get("/teste", whatscontroller.whatsTeste)
+
+router.get("/telegram", telegramController.sendMessageTelegram)
 
 // private routes
 
