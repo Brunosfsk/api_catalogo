@@ -1,4 +1,3 @@
-import { APITOKEN, CHAT_ID } from '../utils/constants.js';
 import axios from 'axios';
 import { templateMessage } from '../utils/templateMessage.js';
 
@@ -7,9 +6,9 @@ export class TelegramService {
     const options = {
       headers: { 'Content-Type': 'application/json;charset=UTF-8' },
     };
-    const url = `${APITOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURI(
-      templateMessage(data),
-    )}&parse_mode=markdown`;
+    const url = `${process.env.APITOKEN}/sendMessage?chat_id=${
+      process.env.CHAT_ID
+    }&text=${encodeURI(templateMessage(data))}&parse_mode=markdown`;
 
     try {
       const response = await axios.get(url, options);
